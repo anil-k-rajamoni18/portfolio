@@ -41,13 +41,15 @@ def submit_form():
     if request.method=="POST":
         try:
             data=request.form.to_dict()
+            # print(data)
             write_to_csv(data)
             send_mail(data)
             write_to_file(data)
             
             
-            return redirect('/thankyou.html')
-        except:
+            return render_template('/thankyou.html',name=data['username'])
+        except Exception as e:
+            # print(e)
             return f"did not save to database"
     else:
         return "something went wrong" 
@@ -58,8 +60,9 @@ def write_to_file(data):
     with open(r'D:\JS\PYTHONCODE\Testing\web_dev\WEBSERVER\database.txt',mode='a') as db:
         email=data['email']
         subject=data['subject']
+        name=data['username']
         message=data['message']
-        file=db.write(f'\n{email},{subject},{message}')
+        file=db.write(f'\n {name}{email},{subject},{message}')
 
 
 
@@ -69,9 +72,10 @@ def write_to_csv(data):
         email = data['email']
         subject = data['subject']
         message = data['message']
-        print([email,subject,message])
+        name=data['username']
+        print([name,email,subject,message])
         csv_writer = csv.writer(db2,delimiter=',', quotechar='"',quoting=csv.QUOTE_MINIMAL)
-        csv_writer.writerow([email,subject,message])
+        csv_writer.writerow([name,email,subject,message])
         print(csv_writer)
 
 
@@ -82,7 +86,7 @@ def send_mail(data):
     email['from'] = 'Anil K Rajamoni '
     email['to'] = 'rajamonianil0909@gmail.com'
     email['subject'] = "Hey ! AK You Have New Response From Profolio"
-    msg=f" \t From Portfolio Website \n EMAIL : {data['email']} \n SUBJECT : {data['subject']} \n MESSAGE : {data['message']}"
+    msg=f" \t From Portfolio Website \n Name:{data['username']} \n EMAIL : {data['email']} \n SUBJECT : {data['subject']} \n MESSAGE : {data['message']}"
 
 
     email.set_content(msg)
@@ -97,7 +101,7 @@ def send_mail(data):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
 
 
 """
